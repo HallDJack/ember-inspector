@@ -15,6 +15,14 @@ import Ember from "ember";
 import config from 'ember-inspector/config/environment';
 const { computed } = Ember;
 
+/**
+ * It provides an abstraction to keep the code browser/environment agnostic. 
+ * Adapters are instantiated and injected into Ember objects automatically. 
+ * Properties and methods in this parent class need to be overridden.
+ * 
+ * @namespace Adapters
+ * @class Basic
+ */
 export default Ember.Object.extend({
   /**
    * Called when the adapter is created (when
@@ -74,32 +82,73 @@ export default Ember.Object.extend({
   name: 'basic',
 
   /**
-    Used to send messages to EmberDebug
-
-    @param type {Object} the message to the send
-  **/
+   * Used to send messages to EmberDebug
+   *
+   * @method sendMessage
+   * @param type {Object} the message to the send
+   */
   sendMessage() {},
 
   /**
-    Register functions to be called
-    when a message from EmberDebug is received
-  **/
+   * Register functions to be called
+   * when a message from EmberDebug is received.
+   * 
+   * @method onMessageReceived
+   * @param {Function} callback
+   */
   onMessageReceived(callback) {
     this.get('_messageCallbacks').pushObject(callback);
   },
 
+  /**
+   * A list of callback functions to be called on messages.
+   *
+   * @property _messageCallbacks
+   * @type {List}
+   * @default []
+   * @private
+   */
   _messageCallbacks: computed(function() { return []; }),
 
+  /**
+   * Call of the _messageCallbacks passing in the
+   * given message.
+   *
+   * @param type {Object} message
+   * @private
+   */
   _messageReceived(message) {
     this.get('_messageCallbacks').forEach(callback => {
       callback(message);
     });
   },
 
-  // Called when the "Reload" is clicked by the user
+  /**
+   * Called when the "Reload" is clicked by the user
+   * 
+   * @method willReload
+   */
   willReload() {},
-
+  
+  /**
+   * Indicates whether the current environment
+   * supports opening up a specific file for debugging.
+   * An example is opening up a resource in the Chrome
+   * Devtools "Sources" panel.
+   *
+   * @property canOpenResource
+   * @type {Boolean}
+   * @default false
+   */
   canOpenResource: false,
+  
+  /**
+   * Opens the resource for the adapter
+   * 
+   * @method openResource
+   * @param {File} file
+   * @param {} line
+   */
   openResource(/* file, line */) {}
 
 });
